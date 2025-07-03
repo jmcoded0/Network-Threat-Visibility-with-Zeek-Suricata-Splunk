@@ -158,62 +158,100 @@ Next, I ensured my Splunk Enterprise instance was running. I opened a terminal o
 ```bash
 sudo /opt/splunk/bin/splunk start
 ```
-   I waited for the terminal to confirm that the "Splunk Web interface started at https://www.google.com/url?sa=E&source=gmail&q=https://127.0.0.1:8000" message appeared, indicating that Splunk Enterprise was fully operational and its web interface was accessible.
+
+I waited for the terminal to confirm that the `"Splunk Web interface started at https://127.0.0.1:8000"` message appeared, indicating that Splunk Enterprise was fully operational and its web interface was accessible.
+
 ![image](https://github.com/user-attachments/assets/130724d4-13d1-4695-b649-32929f60014b)
 
-With Splunk Enterprise running and network connectivity confirmed, I then logged into my Splunk Enterprise web interface. Since Splunk is installed on the same Kali VM, I accessed it directly from a web browser within the Kali machine by navigating to https://127.0.0.1:8000.
+With Splunk Enterprise running and network connectivity confirmed, I then logged into my Splunk Enterprise web interface. Since Splunk is installed on the same Kali VM, I accessed it directly from a web browser within the Kali machine by navigating to:
+
+```
+https://127.0.0.1:8000
+```
+
 Once logged in, I navigated to **Settings > Data Inputs**.
 
 Under the **"Local inputs"** section, I clicked on **"TCP"**. This is where I configured a new TCP data input for the logs coming from the Universal Forwarder.
 
-I clicked **"New Local TCP Input"** or **"Add new"** (depending on the Splunk version's exact wording) to create a new listener.
+I clicked **"New Local TCP Input"** or **"Add new"** to create a new listener.
 
-For the **"Port"**, I entered `9997`, which is the default port the Universal Forwarder is configured to send logs to in `outputs.conf`. I ensured the port was open and not blocked by any firewall rules on the Kali VM.
+For the **Port**, I entered `9997`, which is the default port the Universal Forwarder is configured to send logs to in `outputs.conf`. I ensured the port was open and not blocked by any firewall rules on the Kali VM.
 
 I clicked **"Next"**.
 
-On the **"Input Settings"** screen, I specified the following:
+On the "Input Settings" screen, I specified the following:
+
 * **Source type**: I needed to add two distinct data inputs, one for Zeek logs and one for Suricata logs.
-    * For **Zeek logs**: I selected **"Select"** and then chose `_json` as the source type, as Zeek logs are primarily in JSON format.
-    * For **Suricata logs**: I also selected **"Select"** and chose `suricata_eve` as the source type, which is specifically designed for Suricata's EVE JSON output, or `_json` if `suricata_eve` was not readily available.
+  * For **Zeek logs**: I selected **"Select"** and then explicitly chose `zeek` as the source type. It's crucial to note that while some network security data might be in JSON, Zeek logs are typically in a **tab-separated value (TSV)** format. Incorrectly setting this to `_json` in earlier attempts led to data corruption, which was resolved by specifically using `sourcetype=zeek` to ensure proper parsing.
+  * For **Suricata logs**: I selected **"Select"** and chose `suricata_eve` as the source type, which is specifically designed for Suricata's EVE JSON output.
+
 * **Index**: I created two new indexes for better data organization:
-    * For Zeek logs, I entered `zeek`.
-    * For Suricata logs, I entered `suricata`.
+  * For Zeek logs, I entered `zeek`.
+  * For Suricata logs, I entered `suricata`.
+
 * **Host field value**: I set this to `kali-nsm` to easily identify the source of these logs in Splunk, indicating they originated from my Kali Network Security Monitoring machine.
 
 I then clicked **"Review"** and finally **"Submit"** to create each data input. I repeated this process for both the Zeek and Suricata log types, ensuring each had its own dedicated index and appropriate sourcetype.
 
-After setting up the input, I generated some new network traffic from Kali (e.g., `ping` to Metasploitable2, simple web Browse to a target, or Nmap scans) to ensure logs were actively being sent by the forwarder and successfully received by Splunk.
+![VirtualBox_Kali Linux_03_07_2025_01_15_28](https://github.com/user-attachments/assets/32569cb9-6023-45d1-babf-16ca460854c8)
 
-* **Screenshot:**
-    **Show your Splunk Enterprise web interface demonstrating the successful creation of the TCP inputs (e.g., a screenshot of the "Data Inputs > TCP" page showing port `9997` configured, or a screenshot of the input settings review page for `zeek` and `suricata` indexes). You should ideally have one screenshot showing the input for Zeek logs (with index `zeek` and sourcetype `_json`) and another for Suricata logs (with index `suricata` and sourcetype `suricata_eve` or `_json`).**
-    Wait for the "Splunk Web interface started" message.
+After setting up the input, I generated some new network traffic from Kali (e.g., `ping` to Metasploitable2, simple web browse to a target, and Nmap scans) to ensure logs were actively being sent by the forwarder and successfully received by Splunk. This confirmed that both Zeek and Suricata logs were being ingested correctly into their respective indexes with proper sourcetypes and field extraction.
+![VirtualBox_Kali Linux_03_07_2025_17_13_40](https://github.com/user-attachments/assets/f247ffeb-98be-4400-b419-77a7d08956ee)
 
-I logged into my Splunk Enterprise web interface, which, since Splunk is installed on the same Kali VM, I accessed via `https://127.0.0.1:8000` in a web browser on the Kali machine itself.
+### 2.4. **Data Verification and Initial Exploration in Splunk**
 
-Once logged in, I navigated to **Settings > Data Inputs**.
+### **My Action:**
 
-Under the **"Local inputs"** section, I clicked on **"TCP"**. This is where I configured a new TCP data input for the logs coming from the Universal Forwarder.
+With the Universal Forwarder sending logs and Splunk Enterprise configured to receive them, the immediate next step was to thoroughly verify that the network security data was not only arriving but also being correctly parsed and indexed. This involved ensuring that the previously observed data corruption (`00000` characters) was absent and that Splunk was successfully extracting meaningful fields from both Zeek and Suricata logs.
 
-I clicked **"New Local TCP Input"** or **"Add new"** (depending on the Splunk version's exact wording) to create a new listener.
+First, I logged into my Splunk Enterprise web interface. My primary goal was to confirm the integrity of the **Zeek logs**, as this had been a key challenge.
 
-For the **"Port"**, I entered `9997`, which is the default port the Universal Forwarder is configured to send logs to in `outputs.conf`. I ensured the port was open and not blocked by any firewall rules on the Kali VM.
+I navigated to the **Search & Reporting** app and executed a targeted search for Zeek data:
 
-I clicked **"Next"**.
+```splunk
+index=zeek sourcetype=zeek
+```
 
-On the **"Input Settings"** screen, I specified the following:
-* **Source type**: I needed to add two distinct data inputs, one for Zeek logs and one for Suricata logs.
-    * For **Zeek logs**: I selected **"Select"** and then chose `_json` as the source type, as Zeek logs are primarily in JSON format.
-    * For **Suricata logs**: I also selected **"Select"** and chose `suricata_eve` as the source type, which is specifically designed for Suricata's EVE JSON output, or `_json` if `suricata_eve` was not readily available.
-* **Index**: I created two new indexes for better data organization:
-    * For Zeek logs, I entered `zeek`.
-    * For Suricata logs, I entered `suricata`.
-* **Host field value**: I set this to `kali-nsm` to easily identify the source of these logs in Splunk, indicating they originated from my Kali Network Security Monitoring machine.
+I set the time range to **"Last 15 minutes"** to focus on recent activity generated after the final configuration adjustments. I observed the search results closely. Crucially, I confirmed that:
 
-I then clicked **"Review"** and finally **"Submit"** 
-![VirtualBox_Kali Linux_03_07_2025_01_15_28](https://github.com/user-attachments/assets/957122aa-3160-4cea-9abb-c1fb402a0ff3)
+- The data was indeed present, showing a growing number of events.
+- The **sourcetype** for these events was accurately identified as `zeek`, confirming that the specific receiver configuration on Splunk Enterprise was correctly overriding any default auto-detection.
+- The raw event data was clean and free of the `00000` (null byte) corruption that plagued earlier attempts.
+- Splunk was actively extracting fields relevant to Zeek logs (e.g., `id.orig_h`, `id.resp_h`, `proto`, `service`, `duration`, `orig_bytes`, `resp_bytes`, etc.), which were visible in the **"Interesting Fields"** and **"Selected Fields"** sections on the left pane. This indicated that the field extraction rules (either built-in or from custom `props.conf`/`transforms.conf`) were being applied effectively.
 
-After setting up the input, I generated some new network traffic from Kali (e.g., `ping` to Metasploitable2, simple web Browse to a target, or Nmap scans) to ensure logs were actively being sent by the forwarder and successfully received by Splunk.
+![VirtualBox_Kali Linux_03_07_2025_17_34_35](https://github.com/user-attachments/assets/e919c11a-b4cb-433d-ad93-609ca3a7b796)
 
-* **Screenshot:**
-    **Show your Splunk Enterprise web interface demonstrating the successful creation of the TCP inputs (e.g., a screenshot of the "Data Inputs > TCP" page showing port `9997` configured, or a screenshot of the input settings review page for `zeek` and `suricata` indexes). You should ideally have one screenshot showing the input for Zeek logs (with index `zeek` and sourcetype `_json`) and another for Suricata logs (with index `suricata` and sourcetype `suricata_eve` or `_json`).**
+
+Next, to ensure all data streams were functioning as expected, I performed a similar verification for **Suricata logs**:
+
+```splunk
+index=suricata sourcetype=suricata_eve
+```
+
+I again set the time range to **"Last 15 minutes."** I confirmed that Suricata alerts and events were flowing in, correctly identified with `sourcetype=suricata_eve`, and that relevant fields like `alert.signature`, `src_ip`, `dest_ip`, `dest_port`, `proto`, and `flow_id` were being extracted. This validated the complete data ingestion pipeline.
+
+![Splunk Suricata Log Verification](https://github.com/user-attachments/assets/your-screenshot-placeholder2.png)
+
+With the core data ingestion and parsing confirmed, I proceeded to perform some initial explorations to familiarize myself with the data's structure and content. This involved using basic **Splunk Search Processing Language (SPL)** commands to gain immediate insights.
+
+To count events by protocol in Zeek logs:
+
+```splunk
+index=zeek sourcetype=zeek | stats count by proto
+```
+
+To identify top source IP addresses in Zeek connections:
+
+```splunk
+index=zeek sourcetype=zeek | top 10 id.orig_h
+```
+
+To list unique Suricata alert signatures:
+
+```splunk
+index=suricata sourcetype=suricata_eve | stats count by alert.signature
+```
+
+These initial searches provided confidence that the NSM data was correctly integrated into Splunk and was ready for deeper analysis and security monitoring tasks.
+
+
