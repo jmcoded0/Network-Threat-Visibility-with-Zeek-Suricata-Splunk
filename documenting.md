@@ -230,28 +230,54 @@ index=suricata sourcetype=suricata_eve
 
 I again set the time range to **"Last 15 minutes."** I confirmed that Suricata alerts and events were flowing in, correctly identified with `sourcetype=suricata_eve`, and that relevant fields like `alert.signature`, `src_ip`, `dest_ip`, `dest_port`, `proto`, and `flow_id` were being extracted. This validated the complete data ingestion pipeline.
 
-![Splunk Suricata Log Verification](https://github.com/user-attachments/assets/your-screenshot-placeholder2.png)
+![VirtualBox_Kali Linux_03_07_2025_17_34_35](https://github.com/user-attachments/assets/107c3a4c-e4fc-4fee-9782-f0d5148a7673)
 
-With the core data ingestion and parsing confirmed, I proceeded to perform some initial explorations to familiarize myself with the data's structure and content. This involved using basic **Splunk Search Processing Language (SPL)** commands to gain immediate insights.
+### 2.5. **Initial Security Monitoring and Visualization**
 
-To count events by protocol in Zeek logs:
+### **My Action:**
+
+With the foundational setup complete and network security logs reliably flowing into Splunk, the next phase of my lab involved leveraging this collected data for practical security monitoring and basic visualization. This step allowed me to move beyond raw log inspection and begin to synthesize information for quicker threat detection and situational awareness.
+
+My first objective was to gain a higher-level understanding of the network traffic captured by **Zeek**. I utilized Splunk's reporting capabilities to visualize the distribution of network protocols, which can provide insights into common network behaviors and highlight anomalies if unexpected protocols are present.
+
+To achieve this, I ran the following search in Splunk:
 
 ```splunk
-index=zeek sourcetype=zeek | stats count by proto
+index=zeek sourcetype=zeek | stats count by proto | sort -count
 ```
 
-To identify top source IP addresses in Zeek connections:
+I then saved this search as a **report** and configured it to display as a **pie chart**, providing a clear visual representation of protocol distribution.
+
+![Zeek Protocol Pie Chart](https://github.com/user-attachments/assets/your-screenshot-placeholder1.png)
+
+---
+
+Next, I focused on identifying the **most active hosts** on the network, as a high volume of connections from or to a particular IP address can sometimes indicate unusual activity or potential scanning. I used Zeek's connection logs for this analysis.
+
+I executed this search to identify top source IP addresses:
 
 ```splunk
 index=zeek sourcetype=zeek | top 10 id.orig_h
 ```
 
-To list unique Suricata alert signatures:
+I saved this as another **report**, choosing a **bar chart** visualization to easily compare the activity levels of different source IPs.
+
+![Top Source IPs Bar Chart](https://github.com/user-attachments/assets/your-screenshot-placeholder2.png)
+
+---
+
+Finally, to begin actively monitoring for **potential threats detected by Suricata**, I focused on visualizing the types of alerts being generated. Understanding the frequency and types of alerts is crucial for prioritizing investigations.
+
+I used the following search for Suricata alerts:
 
 ```splunk
-index=suricata sourcetype=suricata_eve | stats count by alert.signature
+index=suricata sourcetype=suricata_eve | stats count by alert.signature | sort -count
 ```
 
-These initial searches provided confidence that the NSM data was correctly integrated into Splunk and was ready for deeper analysis and security monitoring tasks.
+I saved this as a **report** and displayed it as a **table or bar chart**, which allowed for quick review of the most prevalent alert signatures.
 
+![Suricata Alerts Chart](https://github.com/user-attachments/assets/your-screenshot-placeholder3.png)
 
+---
+
+These initial visualizations proved invaluable. They transformed raw log data into actionable insights, allowing for a more efficient way to observe network behavior and identify potential security incidents within my lab environment. This laid the groundwork for building a comprehensive security dashboard.
