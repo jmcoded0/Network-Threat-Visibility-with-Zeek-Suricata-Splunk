@@ -236,48 +236,66 @@ I again set the time range to **"Last 15 minutes."** I confirmed that Suricata a
 
 ### **My Action:**
 
-With the foundational setup complete and network security logs reliably flowing into Splunk, the next phase of my lab involved leveraging this collected data for practical security monitoring and basic visualization. This step allowed me to move beyond raw log inspection and begin to synthesize information for quicker threat detection and situational awareness.
-
-My first objective was to gain a higher-level understanding of the network traffic captured by **Zeek**. I utilized Splunk's reporting capabilities to visualize the distribution of network protocols, which can provide insights into common network behaviors and highlight anomalies if unexpected protocols are present.
-
-To achieve this, I ran the following search in Splunk:
-
-```splunk
-index=zeek sourcetype=zeek | stats count by proto | sort -count
-```
-
-I then saved this search as a **report** and configured it to display as a **pie chart**, providing a clear visual representation of protocol distribution.
-
-![Zeek Protocol Pie Chart](https://github.com/user-attachments/assets/your-screenshot-placeholder1.png)
+After confirming that logs from both Zeek and Suricata were successfully being ingested into Splunk, I moved on to explore the data for threat detection and visibility. Since not all predefined searches returned results, I adapted my approach based on the fields that were actually available from the logs.
 
 ---
 
-Next, I focused on identifying the **most active hosts** on the network, as a high volume of connections from or to a particular IP address can sometimes indicate unusual activity or potential scanning. I used Zeek's connection logs for this analysis.
+#### 🔍 Viewing Raw Zeek Logs
 
-I executed this search to identify top source IP addresses:
+To understand what kind of network data Zeek was capturing, I used a table command to list all available fields:
 
 ```splunk
-index=zeek sourcetype=zeek | top 10 id.orig_h
+index=zeek sourcetype=zeek_custom_tsv | table *
 ```
 
-I saved this as another **report**, choosing a **bar chart** visualization to easily compare the activity levels of different source IPs.
+This allowed me to explore connection metadata such as IPs, ports, protocols, and session details. It also helped confirm that Zeek was actively logging new network events.
 
-![Top Source IPs Bar Chart](https://github.com/user-attachments/assets/your-screenshot-placeholder2.png)
+![VirtualBox_Kali Linux_05_07_2025_01_15_12](https://github.com/user-attachments/assets/4715aa54-7be1-41a1-8da4-80c47b21d0f8)
 
 ---
 
-Finally, to begin actively monitoring for **potential threats detected by Suricata**, I focused on visualizing the types of alerts being generated. Understanding the frequency and types of alerts is crucial for prioritizing investigations.
+#### 📊 Monitoring Suricata Alerts with Key Fields
 
-I used the following search for Suricata alerts:
+To focus on the most relevant Suricata alert data, I used a more refined table search that highlights the timestamp, alert signature, categories, IP addresses, and protocol:
 
 ```splunk
-index=suricata sourcetype=suricata_eve | stats count by alert.signature | sort -count
+index=suricata sourcetype=suricata_json | table _time, alert.signature, alert.category, src_ip, dest_ip, src_port, dest_port, proto
 ```
 
-I saved this as a **report** and displayed it as a **table or bar chart**, which allowed for quick review of the most prevalent alert signatures.
+This gave me a cleaner and more structured overview of all detected alerts, which is easier to analyze and visualize in Splunk.
 
-![Suricata Alerts Chart](https://github.com/user-attachments/assets/your-screenshot-placeholder3.png)
+![image](https://github.com/user-attachments/assets/d060318b-abdc-410a-8cbb-1eb101d7bede)
+
 
 ---
 
-These initial visualizations proved invaluable. They transformed raw log data into actionable insights, allowing for a more efficient way to observe network behavior and identify potential security incidents within my lab environment. This laid the groundwork for building a comprehensive security dashboard.
+#### 📈 Bonus Visualization: Top Source IPs from Zeek
+
+I also created a basic chart to identify the most active source IPs on the network:
+
+```splunk
+index=zeek sourcetype=zeek_custom_tsv | table _time, id.orig_h, id.resp_h, proto
+```
+
+I saved this as a **report** and visualized it using a **bar chart** to highlight top talkers in the lab environment.
+
+![VirtualBox_Kali Linux_05_07_2025_01_19_55](https://github.com/user-attachments/assets/e8e00102-6499-4b78-9a50-54639ce34fb2)
+
+---
+
+These visualizations gave me a practical view into what’s happening in the network and helped me validate that my lab setup (including Zeek and Suricata integration with Splunk) was working properly. Instead of focusing on pre-built dashboards, I built these queries from scratch based on the data I had — which was a valuable learning experience on its own.
+
+## 🧠 Final Thoughts & Lessons Learned
+
+This lab was **by far the most challenging project I’ve worked on so far** in my cybersecurity journey. Integrating Zeek and Suricata into Splunk inside a fully isolated VirtualBox environment came with **multiple technical roadblocks** — from broken sourcetypes, log parsing issues, `00000` TSV corruption, network interface confusion, Splunk data input misconfigurations, and more. At times, the logs weren’t even showing, and I had to troubleshoot from the ground up — manually inspecting field extractions, rewriting search queries, and rethinking how data flows.
+
+But through all of that, I **learned more than any tutorial could teach me**. I now understand:
+- How to build a working NSM pipeline from raw packets to visual dashboards.
+- How to debug Splunk Universal Forwarder and sourcetype issues.
+- Why proper indexing and field extraction **makes or breaks your SIEM visibility**.
+- How Zeek and Suricata complement each other — Zeek for deep protocol insight, Suricata for signature-based detection.
+
+Most importantly, I learned the **value of patience, persistence, and adapting** when things don’t work on the first try.
+
+This wasn’t just a lab setup — it was a real-world simulation of what cybersecurity professionals face daily in blue team operations.
+
