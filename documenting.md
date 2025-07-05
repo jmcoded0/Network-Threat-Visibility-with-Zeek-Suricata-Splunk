@@ -1,4 +1,4 @@
-# Zeek & Splunk Integration: Advanced Network Visibility Lab - Continuation
+# 🛡️🛡️🛡️ Zeek & Splunk Integration: Advanced Network Visibility Lab - Continuation
 
 This project builds upon an existing cybersecurity lab environment, extending its capabilities by integrating Zeek (Network Security Monitor) for deep network telemetry and enhancing Security Information and Event Management (SIEM) with Splunk to centralize and analyze both Zeek and Suricata logs.
 
