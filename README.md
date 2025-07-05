@@ -7,7 +7,7 @@ This project documents the full setup of a virtual **Network Security Monitoring
 My goal is to build hands-on experience in packet-level traffic analysis, intrusion detection, log correlation, and SIEM operations — the kind of skills real SOC analysts use every day.
 
 > 🔗 This is a continuation of my earlier work:  
-> - [🔗 Splunk Cybersecurity Lab](https://github.com/jmcoded0/Splunk-Cybersecurity-Lab)  
+> - [🔗 Splunk Cybersecurity Lab](https://github.com/jmcoded0/Splunk-Cybersecurity-Lab-)
 > - [🔗 Network Monitoring & IDS Lab (Suricata)](https://github.com/jmcoded0/Network-Monitoring-IDS-Lab)
 
 ## 🎯 Objectives
@@ -56,14 +56,7 @@ My goal is to build hands-on experience in packet-level traffic analysis, intrus
 - Use real packet captures to test detection accuracy
 - Deploy Elastic Stack (ELK) for alternate SIEM perspective
 
-## 🖼️ Screenshots
 
-> *(To be added)*  
-> Expect annotated screenshots of:
-> - Suricata alerts (`eve.json`)  
-> - Zeek log outputs  
-> - Splunk dashboards and detection queries  
-> - Network diagram of the lab setup
 
 ## 📄 Full Documentation
 
@@ -75,8 +68,6 @@ My goal is to build hands-on experience in packet-level traffic analysis, intrus
 
 **Johnson Mathew**  
 Cybersecurity Analyst | SIEM | Cloud Security | Threat Detection  
-📎 [GitHub Profile](https://github.com/jmcoded0)  
-🌐 [https://jmcoded.site](https://jmcoded.site)
 
 ---
 
