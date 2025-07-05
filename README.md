@@ -26,7 +26,6 @@ My goal is to build hands-on experience in packet-level traffic analysis, intrus
 - **VirtualBox** – For virtualization
 - **Kali Linux** – Main analyst box (Zeek + Suricata + Splunk Forwarder)
 - **Metasploitable2** – Vulnerable target machine
-- **(Optional)** Windows 10 or Ubuntu as extra victims
 - **Splunk Enterprise** – For centralized log analysis
 - **Zeek** – Behavioral Network Security Monitor
 - **Suricata** – IDS/IPS engine
