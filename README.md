@@ -58,7 +58,7 @@ My goal is to build hands-on experience in packet-level traffic analysis, intrus
 
 ## 📄 Full Documentation
 
-👉 [View the full step-by-step documentation with screenshots](https://github.com/jmcoded0/Network-Monitoring-IDS-Lab/blob/main/Documenting.md)
+👉 [View the full step-by-step documentation with screenshots](https://github.com/jmcoded0/Network-Threat-Visibility-with-Zeek-Suricata-Splunk/blob/main/documenting.md)
 
 ---
 
