@@ -1,5 +1,4 @@
-# 🛡️ Zeek-Suricata-Splunk Network Visibility Lab
-
+# 🛡️ Network Threat Visibility with Zeek, Suricata & Splunk
 ## 🔍 Project Overview
 
 This project documents the full setup of a virtual **Network Security Monitoring (NSM)** lab, combining powerful open-source tools — **Zeek**, **Suricata**, and **Splunk** — to simulate, detect, and analyze network threats in a controlled environment.
